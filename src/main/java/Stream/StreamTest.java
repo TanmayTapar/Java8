@@ -1,9 +1,6 @@
 package Stream;
 
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import java.util.*;
@@ -68,12 +65,79 @@ public class StreamTest {
 	@Test
 	public void testGroupBy(){
 		Map<Boolean,List<Employee>> map1= list.stream().collect(Collectors.partitioningBy(o->o.getSalary()>1000));
-		map1.forEach((k,v)-> System.out.println(k + " " + v));
+	//	map1.forEach((k,v)-> System.out.println(k + " " + v));
 		
 		Map<String,List<Employee>> map2= list.stream().collect(Collectors.groupingBy(o->o.getSalary()>=1000?"Greater":"Less"));
-		map2.forEach((k,v)->System.out.println(k + " " + v));
+		//map2.forEach((k,v)->System.out.println(k + " " + v));
+		
+		Map<String,List<Employee>> map3= list.stream().collect(Collectors.groupingBy(o->{
+			 if(o.getSalary() > 100 && o.getSalary() < 1000){
+	                return "Not a big deal";
+	            }else if(o.getSalary() >= 1000 && o.getSalary() < 5000){
+	                return "Is a big deal";
+	            }else{
+	                return "Real Man";
+	            }
+		}));
+	//	map3.forEach((k,v)->System.out.println(k+" "+v));
 	}
 	
+	 @Test
+	    public void testFlatMap(){
+	        Map<String, List<Employee>> bMap = list.stream().collect(Collectors.groupingBy(o -> o.getSalary()>=1000?"Greater than/equal to 1000":"Less than 1000"));
+	        List<Employee> listOfEmp = bMap.values().stream().flatMap(employees -> {
+	            //System.out.println(12345);
+	            return employees.stream();}).collect(Collectors.toList());
+
+	        //listOfEmp.forEach(System.out::println);
+	        }
+
+	 @Test
+	 public void testChange(){
+		 list.stream().forEach(e->e.setAge(e.getAge()+4));
+		 //list.forEach(System.out::println);
+	 }
 	
-	
+	 @Test
+	 public void testMatch(){
+		 boolean allSalary=list.stream().allMatch(e->e.getSalary()>1000);
+		 System.out.println(allSalary);
+		 boolean any= list.stream().anyMatch(e->e.getSalary()>100);
+		 System.out.println(any);
+		 boolean none=list.stream().noneMatch(e->e.getAge()<40);
+		 System.out.println(none);
+	 }	
+	 
+	 @Test
+	 public void testPeek(){
+		// list.stream().peek(e->e.setAge(e.getAge()+10)).filter(e->e.getAge()>50).peek(e->e.setAge(10)).forEach(System.out::println);
+	 }
+	 
+	 @Test
+	 public void testDistinctCount(){
+		 long count= list.stream().distinct().count();
+		 System.out.println(count);
+	 }
+	 
+	 @Test 
+	 public void testSkipLimit(){
+		 list.stream().skip(2).limit(2).forEach(System.out::println);
+	 }
+	 
+	 @Test
+	 public void testReduce(){
+		 Employee emp=list.stream().reduce((e1,e2)->{
+			 e1.setSalary(e1.getSalary()+e2.getSalary());
+			 e1.setAge(e1.getAge()+e2.getAge());
+			 e1.setName(e1.getName()+e2.getName());
+			 return e1;
+		 }).get();
+		System.out.println(emp);
+	 }
+	 
+	 @Test
+	 public void test(){
+		 LinkedList<Employee> newList = list.stream().collect(LinkedList::new, (list, employee) -> {list.add(employee);}, (list, objects2) -> {list.addAll(objects2);});
+	 }
 }
+
